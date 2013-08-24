@@ -11,16 +11,19 @@ namespace :nikon do
 
     html = Nokogiri::HTML(open("http://www.photosynthesis.co.nz/nikon/serialno.html"))
 
-    titles = html.css("a[name] > b").map(&:text)
+    titles = html.css("a[name] > b").map(&:text).map(&:strip)
     tables = html.css("table")
 
     tables = tables.map do |table|
       output = []
-      headers = table.css("th").map &:text
+
+      # Headers
+      # Type, Lens, Country, Scr, Features, Start No, Confirmed, End No, Qty, Date
+      headers = table.css("th").map(&:text).map(&:strip)
       output << headers
 
       table.css("tr").each do |tr|
-        output << tr.css("td").map(&:text)
+        output << tr.css("td").map(&:text).map(&:strip)
       end
 
       output
