@@ -41,7 +41,7 @@ def extract_tables_from_html(html, table_offset=0)
       start_no = start_no.to_i
       end_no.gsub(/[^\d]/, "")   if start_no.respond_to?(:gsub!)
       end_no = end_no.to_i
-      confirmed
+      confirmed.gsub!(/[^\d^\-^\s]/, "")
 
       range = if start_no > 0 && end_no > 0
         (start_no.to_i)..(end_no.to_i)
