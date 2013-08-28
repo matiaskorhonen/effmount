@@ -44,23 +44,25 @@ def extract_tables_from_html(html, table_offset=0)
       confirmed.gsub!(/[^\d^\-^\s]/, "")
 
       range = if start_no > 0 && end_no > 0
-        (start_no.to_i)..(end_no.to_i)
+        (start_no)..(end_no)
       elsif start_no > 0 && confirmed
         if (matches = confirmed.match(range_re))
           (start_no)..(matches[2].gsub("x", "9").to_i)
         elsif confirmed =~ /^\d+$/
-          confirmed.to_i
+          confirmed.to_i..confirmed.to_i
         else
-          start_no.to_i
+          start_no..start_no
         end
       elsif start_no == 0 && end_no == 0 && confirmed
         if (matches = confirmed.match(range_re))
           (matches[1].gsub("x", "0").to_i)..(matches[2].gsub("x", "9").to_i)
         elsif confirmed =~ /^\d+$/
-          confirmed.to_i
+          confirmed.to_i..confirmed.to_i
         else
           nil
         end
+      elsif end_no > 0 &&  start_no == 0
+        end_no..end_no
       else
         nil
       end
