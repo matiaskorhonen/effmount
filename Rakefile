@@ -8,6 +8,20 @@ def extract_titles_from_html(html)
   html.css("a[name] > b").map(&:text).map(&:strip)
 end
 
+def clean_number_string(number_string, position=:start)
+  replacement_re = /[x`]/ # placeholder x or backtick
+  numbers_re = /[^\d^x^`]/ # not digits, x, or backtick
+
+  number_string.gsub!(numbers_re, "")
+
+  if position == :start
+    number_string.gsub!(replacement_re, "0")
+  else
+    number_string.gsub!(replacement_re, "9")
+  end
+  number_string
+end
+
 def extract_tables_from_html(html, table_offset=0)
   tables = html.css("table")
 
@@ -26,12 +40,13 @@ def extract_tables_from_html(html, table_offset=0)
 
     output
   end
-  
+
   tables = tables.drop(table_offset)
 
   tables.each do |lenses|
     lenses.each do |lens|
-      range_re = /(\d+)[\.\s-]+(\d+)/
+      range_re = /([\d`]+)[\.\s-]+([\d`]+)/
+      replacement_re = /[x`]/
 
       start_no = lens[:start_no]
       end_no = lens[:end_no]
@@ -39,10 +54,13 @@ def extract_tables_from_html(html, table_offset=0)
 
       numbers_re = /[^\d^x^`]/
 
-      start_no.gsub!(numbers_re, "") if start_no.respond_to?(:gsub!)
+
+      start_no = clean_number_string(start_no) if start_no
       start_no = start_no.to_i
-      end_no.gsub!(numbers_re, "")   if start_no.respond_to?(:gsub!)
+
+      end_no = clean_number_string(end_no) if end_no
       end_no = end_no.to_i
+
       confirmed.gsub!(/[^\d^\-^\s]/, "")
 
       range = if start_no > 0 && end_no > 0
