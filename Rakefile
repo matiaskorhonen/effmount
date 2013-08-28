@@ -37,9 +37,11 @@ def extract_tables_from_html(html, table_offset=0)
       end_no = lens[:end_no]
       confirmed = lens[:confirmed]
 
-      start_no.gsub(/[^\d]/, "") if start_no.respond_to?(:gsub!)
+      numbers_re = /[^\d^x^`]/
+
+      start_no.gsub!(numbers_re, "") if start_no.respond_to?(:gsub!)
       start_no = start_no.to_i
-      end_no.gsub(/[^\d]/, "")   if start_no.respond_to?(:gsub!)
+      end_no.gsub!(numbers_re, "")   if start_no.respond_to?(:gsub!)
       end_no = end_no.to_i
       confirmed.gsub!(/[^\d^\-^\s]/, "")
 
@@ -47,7 +49,7 @@ def extract_tables_from_html(html, table_offset=0)
         (start_no)..(end_no)
       elsif start_no > 0 && confirmed
         if (matches = confirmed.match(range_re))
-          (start_no)..(matches[2].gsub("x", "9").to_i)
+          (start_no)..(matches[2].gsub(/[x`]/, "9").to_i)
         elsif confirmed =~ /^\d+$/
           confirmed.to_i..confirmed.to_i
         else
@@ -55,7 +57,7 @@ def extract_tables_from_html(html, table_offset=0)
         end
       elsif start_no == 0 && end_no == 0 && confirmed
         if (matches = confirmed.match(range_re))
-          (matches[1].gsub("x", "0").to_i)..(matches[2].gsub("x", "9").to_i)
+          (matches[1].gsub(/[x`]/, "0").to_i)..(matches[2].gsub(/[x`]/, "9").to_i)
         elsif confirmed =~ /^\d+$/
           confirmed.to_i..confirmed.to_i
         else
